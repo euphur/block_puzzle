@@ -21,6 +21,8 @@ class Model
   end
   def stack
   end
+  def hard_drop
+  end
   
   private
   def delete_lines
