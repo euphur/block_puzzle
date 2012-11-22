@@ -5,6 +5,7 @@ class Playing < GameState
   def initialize
     super
     @model = Model.new
+    redraw
   end
   def process_key key, state
     case key
@@ -24,5 +25,9 @@ class Playing < GameState
       @model.rotate_cw
     when SDL::Key::LCTRL
       @model.rotate_ccw
+    end
+  end
+  def draw screen
+    
   end
 end
