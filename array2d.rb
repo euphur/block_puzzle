@@ -1,9 +1,17 @@
 class Array2D
   attr_reader :w, :h
 
-  def initialize w, h
-    @w, @h = w, h
-    @array = Array.new(@h) { Array.new(@w) }
+  def initialize *args
+    case args[0]
+    when Array
+      @array = args[0]
+      @w, @h = @array[0].size, @array.size
+    when Integer
+      @w, @h = args
+      @array = Array.new(@h) { Array.new(@w) }
+    else
+      raise
+    end
   end
   def [] x, y
     @array[y][x]
@@ -20,5 +28,18 @@ class Array2D
         yield value
       end
     end
+  end
+  def rotate_cw
+    new = Array2D.new(@h, @w)
+    
+    new.h.times do |y|
+      new.w.times  do |x|
+        new[x,y] = self[y, @h-x-1]
+      end
+    end
+
+    new
+  end
+  def rotate_ccw
   end
 end

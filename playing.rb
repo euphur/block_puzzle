@@ -3,11 +3,16 @@ require './game_state.rb'
 
 class Playing < GameState
   @@DEFAULT_KEY_REPEAT_MS = 500
+  @@colors = {
+    'I'=>0x00FFFF, 'T'=>0x8000FF, 'O'=>0xFFFF00, 'S'=>0x00FF00,
+    'Z'=>0xFF0000, 'J'=>0x0000FF, 'L'=>0xFF8000
+  }
   
   def initialize *args
     super
     @model = Model.new
-
+    @block = Size.new(16, 16)
+    
     load_bk_image
   end
   def process_key key, state
@@ -37,9 +42,31 @@ class Playing < GameState
     key_repeat_ms
   end
   def draw screen
-    puts @bk_image.w, @bk_image.h
     SDL::Surface.blit(@bk_image, 0, 0, @bk_image.w, @bk_image.h,
                       screen, 0, 0)
+
+    y = 5
+    @model.next_blocks.each do |b|
+      p b.name
+      x = 20
+      4.times do
+        ly = y
+        b.map.rows.each do |row|
+          lx = x
+          row.each do |sq|
+            if sq == 1
+              screen.draw_rect(lx, ly, @block.w, @block.h, @@colors[b.name], true, 200)
+            end
+            screen.draw_rect(lx, ly, @block.w, @block.h, 0xFFFFFF, false, 150)
+            lx += @block.w
+          end
+          ly += @block.h
+        end
+        b.rotate_cw
+        x += 100
+      end
+      y += 68
+    end
   end
   
   private
