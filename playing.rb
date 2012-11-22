@@ -1,13 +1,18 @@
-require './gamestate.rb'
+require './game_state.rb'
 
 
 class Playing < GameState
+  @@DEFAULT_KEY_REPEAT_MS = 500
+  
   def initialize *args
     super
     @model = Model.new
+
     load_bk_image
   end
   def process_key key, state
+    key_repeat_ms = nil
+    
     case key
     when SDL::Key::ESCAPE
       @game.shift_state(PauseMenu)
@@ -17,8 +22,10 @@ class Playing < GameState
       @model.hard_drop
     when SDL::Key::LEFT
       @model.move_left
+      key_repeat_ms = @@DEFAULT_KEY_REPEAT_MS
     when SDL::Key::RIGHT
       @model.move_right
+      key_repeat_ms = @@DEFAULT_KEY_REPEAT_MS
     when SDL::Key::DOWN
       @model.move_down
     when SDL::Key::UP
@@ -26,6 +33,8 @@ class Playing < GameState
     when SDL::Key::LCTRL
       @model.rotate_ccw
     end
+
+    key_repeat_ms
   end
   def draw screen
     puts @bk_image.w, @bk_image.h
