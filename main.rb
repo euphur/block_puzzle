@@ -57,6 +57,7 @@ class BlockPuzzle
   def initialize
     SDL.init(SDL::INIT_VIDEO)
     @screen = SDL.set_video_mode(640, 480, 32, SDL::HWSURFACE)
+    SDL::WM.set_caption('Block Puzzle', '')
     @state = Playing.new(self)
     @timers = TimersManager.new
     redraw

@@ -1,11 +1,32 @@
 require './array2d.rb'
 
 
-class Pos
+class Event
+  def initialize
+    @handlers = []
+  end
+  def << handler
+    @handlers << handler
+  end
+  def dispatch *args
+    @handlers.each do |h|
+      h.call(*args)
+    end
+  end
+end
+
+module PosBase
   attr_accessor :x, :y
   
   def initialize x=0, y=0
     @x, @y = x, y
+  end
+  def pos
+    self
+  end
+  def pos= pos
+    self.x = pos.x
+    self.y = pos.y
   end
   def + pos
     self.x += pos.x
@@ -17,6 +38,10 @@ class Pos
     self.y -= pos.y
     self
   end
+end
+
+class Pos
+  include PosBase
 end
 
 def Pos x=0, y=0
@@ -31,6 +56,51 @@ class Size
   end
 end
 
+def Size w=0,  h=0
+  Size.new(w, h)
+end
+
+class Rect
+  attr_accessor :x, :y
+  attr_accessor :w, :h
+  
+  def initialize a, b
+    @x, @y = a.x, a.y
+    case b
+    when Size then @w, @h = b.w, b.h
+    when Pos  then @w, @h = b.x-a.x, b.y-a.y
+    else raise ArgumentError
+    end
+  end
+  def to_s
+    "#<Rect (#{left}, #{top})-(#{right}, #{bottom}) #{w}x#{h}>"
+  end
+  def right
+    @x + @w
+  end
+  def bottom
+    @y + @h
+  end
+  def right= r
+    @w = r - @x
+  end
+  def bottom= b
+    @h = b - @y
+  end
+
+  alias l       x
+  alias t       y
+  alias left    l
+  alias top     t
+  alias r   right 
+  alias r=  right=
+  alias b   bottom
+  alias b=  bottom=
+end
+
+def Rect a, b
+  Rect.new(a, b)
+end
 
 class Block
   attr_reader :name, :map, :deltas
@@ -49,7 +119,9 @@ end
 
 
 class Model
-  attr_reader :field, :current_block, :current_stack
+  attr_reader :field, :current_block, :block_pos, :current_stack
+  # event :on_redraw, :on_delete_line, :on_game_over
+  attr_reader :on_redraw, :on_delete_line, :on_game_over
 
   @@blocks = []
   @@blocks << Block.new('I', [[1,1,1,1]],
@@ -82,29 +154,58 @@ class Model
   
   def initialize
     @field = Array2D.new(10, 20)
-    @next_blocks = []
+    @on_redraw = Event.new
+    @on_delete_line = Event.new
+    @on_game_over = Event.new
+
+    next_block
   end
-  def block_next
+  def next_block
+    @current_block = shift_block
+    @current_block.extend(PosBase)
+    @current_block.x = (10 - @current_block.map.w) / 2
+    @current_block.y = 20
+    
+    on_redraw.dispatch
   end
   def move_left
+    on_redraw.dispatch
   end
   def move_right
+    on_redraw.dispatch
   end
   def move_down
+    on_redraw.dispatch
   end
   def rotate_cw
+    @current_block.rotate_cw
+    @n ||= 0
+    @current_block.pos += @current_block.deltas[@n%4]
+    @n += 1
+    
+    on_redraw.dispatch
   end
   def rotate_ccw
+    @current_block.rotate_ccw
+    on_redraw.dispatch
   end
   def stack
+    on_redraw.dispatch
   end
   def hard_drop
+    on_redraw.dispatch
   end
-  def next_blocks n=7
-    while @next_blocks.size < n
-      @next_blocks += @@blocks.shuffle
+  def shift_block
+    coming_blocks(1) # make sure @coming_blocks has least 1 block
+    @coming_blocks.shift
+  end
+  def coming_blocks n=7
+    @coming_blocks ||= []
+    
+    while @coming_blocks.size < n
+      @coming_blocks += @@blocks.shuffle.map { |block| block.dup }
     end
-    @next_blocks[0, n].freeze
+    @coming_blocks[0, n].freeze
   end
   
   private
