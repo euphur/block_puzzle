@@ -45,24 +45,34 @@ class Playing < GameState
     SDL::Surface.blit(@bk_image, 0, 0, @bk_image.w, @bk_image.h,
                       screen, 0, 0)
 
+    draw_block = lambda do |_x, y, b|
+      b.map.rows.each do |row|
+        x = _x
+        row.each do |sq|
+          if sq == 1
+            screen.draw_rect(x, y, @block.w, @block.h, @@colors[b.name], true, 200)
+          end
+          screen.draw_rect(x, y, @block.w, @block.h, 0xFFFFFF, false, 150)
+          x += @block.w
+        end
+        y += @block.h
+      end
+    end
+    
     y = 5
     @model.next_blocks.each do |b|
       p b.name
+      pos = Pos(0, 0)
       x = 20
-      4.times do
-        ly = y
-        b.map.rows.each do |row|
-          lx = x
-          row.each do |sq|
-            if sq == 1
-              screen.draw_rect(lx, ly, @block.w, @block.h, @@colors[b.name], true, 200)
-            end
-            screen.draw_rect(lx, ly, @block.w, @block.h, 0xFFFFFF, false, 150)
-            lx += @block.w
-          end
-          ly += @block.h
-        end
+      5.times do |i|
+
+        screen.draw_rect(x, y, @block.w, @block.h, 0xff0000, true)
+      
+        draw_block.call(x + pos.x*@block.w, y + pos.y*@block.h, b)
+        
         b.rotate_cw
+        pos += b.deltas[i%4]
+
         x += 100
       end
       y += 68
