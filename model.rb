@@ -199,26 +199,23 @@ class Model
     @current_block.pos += @current_block.deltas[@rotation%4]
     @rotation += 1
 
-    # right side
-    if @current_block.x + @current_block.map.w > 10
-     while @current_block.x + @current_block.map.w > 10
-        @current_block.x -= 1
-     end
-          
-      return false if @current_block.x < 0
+    unless left_valid?
+      @current_block.x -= 1 until left_valid?
+      return false unless right_valid?
     end
-
-    # left side
-    if @current_block.x < 0
-     while @current_block.x < 0
-        @current_block.x += 1
-     end
-          
-      return false if current_block.x + @current_block.map.w > 10
+    unless right_valid?
+      @current_block.x -= 1 until right_valid?
+      return false unless left_valid?
     end
     
     on_redraw.dispatch
     true
+    end
+  def left_valid?
+    @current_block.x >= 0
+  end
+  def right_valid?
+    @current_block.x + @current_block.map.w <= 9
   end
   def rotate_ccw
     @current_block.rotate_ccw
