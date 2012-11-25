@@ -36,14 +36,18 @@ class TimersManager
   end
   def process    
     now = SDL::get_ticks
-    @timers.size.times do |i|
-      timer = @timers[i]
-      if now >= timer.time
-        case new_ms = timer.handler.call
-        when Integer then timer.time += new_ms;   i+=1
-        when true    then @timers.delete_at(i)
-        else              timer.time += timer.ms; i+=1
-        end
+
+    call_timers = [] # prevent timers deleted in iteration
+    @timers.each do |timer|
+      call_timers << timer if now >= timer.time
+    end
+
+    call_timers.each do |timer|
+      case new_ms = timer.handler.call
+      when Integer then timer.time += new_ms
+      when true    then delete(timer.id)
+      when false   then timer.time += timer.ms
+      else raise
       end
     end
   end

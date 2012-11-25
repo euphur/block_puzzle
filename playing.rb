@@ -16,7 +16,7 @@ class Playing < GameState
     load_bk_image
 
     @model.on_redraw << lambda { @game.redraw }
-    @game.timers.add(:down_block, 1000, lambda { @model.move_down })
+    @game.timers.add(:down_block, 1000, lambda { @model.move_down; false })
   end
   def process_key key, state
     key_repeat_ms = nil

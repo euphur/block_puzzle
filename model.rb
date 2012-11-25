@@ -178,6 +178,7 @@ class Model
     @current_block.x -= 1
     
     on_redraw.dispatch
+    true
   end
   def move_right
     return false if @current_block.x + @current_block.map.w >= 10
@@ -185,18 +186,39 @@ class Model
     @current_block.x += 1
     
     on_redraw.dispatch
+    true
   end
   def move_down
     @current_block.y -= 1
     
     on_redraw.dispatch
+    true
   end
   def rotate_cw
     @current_block.rotate_cw
     @current_block.pos += @current_block.deltas[@rotation%4]
     @rotation += 1
+
+    # right side
+    if @current_block.x + @current_block.map.w > 10
+     while @current_block.x + @current_block.map.w > 10
+        @current_block.x -= 1
+     end
+          
+      return false if @current_block.x < 0
+    end
+
+    # left side
+    if @current_block.x < 0
+     while @current_block.x < 0
+        @current_block.x += 1
+     end
+          
+      return false if current_block.x + @current_block.map.w > 10
+    end
     
     on_redraw.dispatch
+    true
   end
   def rotate_ccw
     @current_block.rotate_ccw
@@ -204,6 +226,7 @@ class Model
     @rotation -= 1
     
     on_redraw.dispatch
+    true
   end
   def stack
     on_redraw.dispatch
