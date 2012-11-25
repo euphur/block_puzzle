@@ -22,14 +22,14 @@ KEY_REPEAT = 1
 
 
 class TimersManager
-  Timer = Struct.new(:id, :time, :handler)
+  Timer = Struct.new(:id, :time, :ms, :handler)
   
   def initialize
     @timers = []
   end
   def add id, ms, handler
     delete(id)
-    @timers << Timer.new(id, SDL::get_ticks+ms, handler)
+    @timers << Timer.new(id, SDL::get_ticks+ms, ms, handler)
   end
   def delete id
     @timers.delete_if { |timer| timer.id == id }
@@ -39,11 +39,10 @@ class TimersManager
     @timers.size.times do |i|
       timer = @timers[i]
       if now >= timer.time
-        timer.time = timer.time + timer.handler.call
-        if timer.time
-          i += 1
-        else
-          @timers.delete_at(i)
+        case new_ms = timer.handler.call
+        when Integer then timer.time += new_ms;   i+=1
+        when true    then @timers.delete_at(i)
+        else              timer.time += timer.ms; i+=1
         end
       end
     end
@@ -58,8 +57,9 @@ class BlockPuzzle
     SDL.init(SDL::INIT_VIDEO)
     @screen = SDL.set_video_mode(640, 480, 32, SDL::HWSURFACE)
     SDL::WM.set_caption('Block Puzzle', '')
-    @state = Playing.new(self)
     @timers = TimersManager.new
+    
+    @state = Playing.new(self)
     redraw
   end
   def run
