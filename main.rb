@@ -72,6 +72,7 @@ class BlockPuzzle
         process_event(event)
       end
       @timers.process
+      sleep 0.01
     end
   end
   def redraw

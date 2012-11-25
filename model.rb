@@ -109,7 +109,7 @@ class Block
   attr_reader :name, :map, :deltas
   
   def initialize name, map, deltas
-    @name, @map, @delta = name, Array2D.new(map)
+    @name, @map, @delta = name, Array2D.new(map.reverse)
     @deltas = deltas.map { |xy| Pos(*xy) }
   end
   def rotate_cw
@@ -190,6 +190,11 @@ class Model
   end
   def move_down
     @current_block.y -= 1
+    unless lower_valid?
+      @current_block.y += 1
+      exit
+      return false
+    end
     
     on_redraw.dispatch
     true
@@ -216,6 +221,9 @@ class Model
   end
   def right_valid?
     @current_block.x + @current_block.map.w <= 9
+  end
+  def lower_valid?
+    @current_block.y >= 0
   end
   def rotate_ccw
     @current_block.rotate_ccw

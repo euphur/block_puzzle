@@ -13,6 +13,7 @@ class Playing < GameState
     @model = Model.new
     @block = Size(16, 16)
     @field = Rect(Pos(200, 80), Size(@block.w*10, @block.h*20))
+
     load_bk_image
 
     @model.on_redraw << lambda { @game.redraw }
@@ -54,25 +55,7 @@ class Playing < GameState
     block = @model.current_block
     draw_block(screen,
                @field.left   + block.x*@block.w,
-               @field.bottom - block.y*@block.h, block)
-    
-    # y = 0
-    # @model.next_blocks(4).each do |b|
-    #   p b.name
-    #   pos = Pos(0, 0)
-    #   x = 0
-    #   5.times do |i|
-    #     screen.draw_rect(x, y, @block.w, @block.h, 0xff0000, true)
-      
-    #     draw_block(screen, x + pos.x*@block.w, y + pos.y*@block.h, b)
-        
-    #     b.rotate_cw
-    #     pos += b.deltas[i%4]
-
-    #     x += 100
-    #   end
-    #   y += 68
-    # end
+               @field.bottom - (block.y+1)*@block.h, block)
   end
   
   private
@@ -123,7 +106,7 @@ class Playing < GameState
                            @@colors[block.name], true, 200) if sq == 1
         x += @block.w
       end
-      y += @block.h
+      y -= @block.h
     end
   end
 end
