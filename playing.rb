@@ -2,7 +2,7 @@ require './game_state.rb'
 
 
 class Playing < GameState
-  @@DEFAULT_KEY_REPEAT_MS = 500
+  @@DEFAULT_KEY_REPEAT_MS = 120
   @@colors = {
     'I'=>0x00FFFF, 'T'=>0x8000FF, 'O'=>0xFFFF00, 'S'=>0x00FF00,
     'Z'=>0xFF0000, 'J'=>0x0000FF, 'L'=>0xFF8000

@@ -38,6 +38,9 @@ module PosBase
     self.y -= pos.y
     self
   end
+  def nega
+    Pos(-@x, -@y)
+  end
 end
 
 class Pos
@@ -113,7 +116,7 @@ class Block
     @map = @map.rotate_cw
   end
   def rotate_ccw
-    # @map = @map.rotate_ccw
+    @map = @map.rotate_ccw
   end
 end
 
@@ -165,28 +168,41 @@ class Model
     @current_block.extend(PosBase)
     @current_block.x = (10 - @current_block.map.w) / 2
     @current_block.y = 20
+    @rotation = 0
     
     on_redraw.dispatch
   end
   def move_left
+    return false if @current_block.x == 0
+    
+    @current_block.x -= 1
+    
     on_redraw.dispatch
   end
   def move_right
+    return false if @current_block.x + @current_block.map.w >= 10
+
+    @current_block.x += 1
+    
     on_redraw.dispatch
   end
   def move_down
+    @current_block.y -= 1
+    
     on_redraw.dispatch
   end
   def rotate_cw
     @current_block.rotate_cw
-    @n ||= 0
-    @current_block.pos += @current_block.deltas[@n%4]
-    @n += 1
+    @current_block.pos += @current_block.deltas[@rotation%4]
+    @rotation += 1
     
     on_redraw.dispatch
   end
   def rotate_ccw
     @current_block.rotate_ccw
+    @current_block.pos += @current_block.deltas[@rotation%4].nega
+    @rotation -= 1
+    
     on_redraw.dispatch
   end
   def stack

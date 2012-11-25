@@ -41,5 +41,14 @@ class Array2D
     new
   end
   def rotate_ccw
+    new = Array2D.new(@h, @w)
+    
+    new.h.times do |y|
+      new.w.times  do |x|
+        new[x,y] = self[@w-y-1, x]
+      end
+    end
+
+    new
   end
 end

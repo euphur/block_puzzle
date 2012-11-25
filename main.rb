@@ -52,7 +52,7 @@ end
 
 
 class BlockPuzzle
-  attr_reader :screen
+  attr_reader :screen, :timers
   
   def initialize
     SDL.init(SDL::INIT_VIDEO)
@@ -83,6 +83,8 @@ class BlockPuzzle
         handler = @state.method(:process_key).to_proc.bind(event.sym, KEY_REPEAT)
         @timers.add(event.sym, rep_ms, handler)
       end
+    when SDL::Event::KeyUp
+      @timers.delete(event.sym)
     end
   end
 end
