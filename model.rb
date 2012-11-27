@@ -192,7 +192,6 @@ class Model
     @current_block.y -= 1
     unless lower_valid?
       @current_block.y += 1
-      exit
       return false
     end
     
@@ -237,7 +236,13 @@ class Model
     on_redraw.dispatch
   end
   def hard_drop
+    while lower_valid?
+      @current_block.y -= 1
+    end
+    @current_block.y += 1
+    
     on_redraw.dispatch
+    true
   end
   def shift_block
     coming_blocks(1) # make sure @coming_blocks has least 1 block
